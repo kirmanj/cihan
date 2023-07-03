@@ -1,17 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
-import 'package:explore/adminControl.dart';
-import 'package:explore/authdialog.dart';
-import 'package:explore/homeScreen.dart';
-import 'package:explore/login.dart';
-import 'package:explore/products.dart';
-import 'package:explore/scrollbehaivori.dart';
-import 'package:explore/utils/authentication.dart';
-import 'package:explore/utils/theme_data.dart';
+import 'package:cihan/localization/AppLocal.dart';
+
+import 'package:cihan/scrollbehaivori.dart';
+import 'package:cihan/web/screens/home_page.dart';
+import 'package:cihan/web/utils/theme_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'localization/kurdish_material_localization.dart';
+import 'services/local_storage_service.dart';
+import 'services/settings_service_provider.dart';
 
-void main() {
+int cartC = 0;
+int role = 0;
+bool quickFull = false;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await LocalStorageService.instance.init();
+  if (LocalStorageService.instance.languageCode == null) {
+    LocalStorageService.instance.languageCode = "en";
+  }
   runApp(
     EasyDynamicThemeWidget(
       child: MyApp(),
@@ -25,27 +36,29 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Future getUserInfo() async {
-    await getUser();
-    if (this.mounted) {}
-
-    print(uid);
-  }
-
   @override
   void initState() {
-    getUserInfo();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sunpower Admin',
-      theme: lightThemeData,
-      scrollBehavior: MyCustomScrollBehavior(),
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+    return ListenableProvider(
+      create: (BuildContext context) {
+        return SettingsServiceProvider();
+      },
+      child: Consumer<SettingsServiceProvider>(
+        builder: (context, settings, child) {
+          return MaterialApp(
+              title: 'CIHAN TRANSLATION',
+              theme: lightThemeData,
+              scrollBehavior: MyCustomScrollBehavior(),
+              darkTheme: darkThemeData,
+              debugShowCheckedModeBanner: false,
+              themeMode: EasyDynamicTheme.of(context).themeMode,
+              home: HomePage());
+        },
+      ),
     );
   }
 }
